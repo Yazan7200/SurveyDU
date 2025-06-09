@@ -225,7 +225,7 @@ export default function SurveyAnalytics() {
                       <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} />
                       <YAxis domain={[0, 5]} />
                       <Tooltip />
-                      <Bar dataKey="value" fill="#19P394" fill="#10b981" />
+                      <Bar dataKey="value" fill="#10b981" />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -273,7 +273,7 @@ export default function SurveyAnalytics() {
                             <YAxis />
                             <Tooltip />
                             <Legend />
-                            <Bar dataKey="count" name="Responses" fill="#19P394" fill="#10b981" />
+                            <Bar dataKey="count" name="Responses" fill="#10b981" />
                           </BarChart>
                         ) : (
                           <BarChart
