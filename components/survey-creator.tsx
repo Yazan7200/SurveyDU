@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState } from "react";
 import { FileText } from "lucide-react";
 import {
@@ -26,6 +25,8 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { createSurvey } from "@/lib/services/survey-service";
@@ -61,8 +62,11 @@ interface SurveyMetadata {
   pointsReward: number;
   startDate: string;
   endDate: string;
-  professorName: string;
   requiredParticipants: number;
+  targetAcademicYear: number;
+  targetMajor: string;
+  targetGender: number;
+  publishImmediately: boolean;
 }
 
 export default function SurveyCreator() {
@@ -75,8 +79,11 @@ export default function SurveyCreator() {
     pointsReward: 100,
     startDate: format(new Date(), "yyyy-MM-dd'T'HH:mm:ss"),
     endDate: format(new Date().setMonth(new Date().getMonth() + 1), "yyyy-MM-dd'T'HH:mm:ss"),
-    professorName: "",
     requiredParticipants: 50,
+    targetAcademicYear: 0,
+    targetMajor: "",
+    targetGender: 0,
+    publishImmediately: true
   });
 
   const questionTypes: QuestionType[] = [
@@ -89,7 +96,7 @@ export default function SurveyCreator() {
     { icon: <Type className="h-4 w-4" />, name: "Single-Line Input", component: SingleLineInput, type: "open_text" },
     { icon: <FileText className="h-4 w-4" />, name: "Long Text", component: LongText, type: "open_text" },
   ];
-
+console.log('yzooooooon');
   const handleQuestionTypeClick = (type: QuestionType) => {
     if (questions.length > 0) {
       const lastQuestion = questions[questions.length - 1];
@@ -141,7 +148,7 @@ export default function SurveyCreator() {
     setQuestions(questions.filter((_, index) => index !== indexToRemove));
   };
 
-  const handleMetadataChange = (key: keyof SurveyMetadata, value: string | number) => {
+  const handleMetadataChange = (key: keyof SurveyMetadata, value: string | number | boolean) => {
     setMetadata(prev => ({ ...prev, [key]: value }));
   };
 
@@ -169,7 +176,7 @@ export default function SurveyCreator() {
   const handleSave = async () => {
     try {
       // Validate required fields
-      if (!metadata.title || !metadata.description || !metadata.professorName) {
+      if (!metadata.title || !metadata.description) {
         toast.error("Please fill in all required fields");
         return;
       }
@@ -317,16 +324,71 @@ export default function SurveyCreator() {
                     />
                   </div>
                 </div>
+                
+                {/* Target Fields */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label htmlFor="targetAcademicYear" className="text-sm font-medium text-gray-700">
+                      Target Academic Year
+                    </label>
+                    <Select value={metadata.targetAcademicYear.toString()} onValueChange={(value) => handleMetadataChange("targetAcademicYear", parseInt(value))}>
+                      <SelectTrigger>
+                        <div className="flex items-center">
+                          <span>
+                            {metadata.targetAcademicYear === 0 ? "All Years" :
+                             metadata.targetAcademicYear === 6 ? "Graduation" :
+                             `Year ${metadata.targetAcademicYear}`}
+                          </span>
+                        </div>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">All Years</SelectItem>
+                        <SelectItem value="1">First Year</SelectItem>
+                        <SelectItem value="2">Second Year</SelectItem>
+                        <SelectItem value="3">Third Year</SelectItem>
+                        <SelectItem value="4">Fourth Year</SelectItem>
+                        <SelectItem value="5">Fifth Year</SelectItem>
+                        <SelectItem value="6">Graduation</SelectItem>
+                      </SelectContent>
+                    </Select>
+                </div>
                 <div className="space-y-2">
-                  <label htmlFor="professorName" className="text-sm font-medium text-gray-700">
-                    Professor Name
+                    <label htmlFor="targetMajor" className="text-sm font-medium text-gray-700">
+                      Target Major
                   </label>
                   <Input
-                    id="professorName"
-                    placeholder="Enter professor name"
-                    value={metadata.professorName}
-                    onChange={(e) => handleMetadataChange("professorName", e.target.value)}
+                      id="targetMajor"
+                      placeholder="Enter target major"
+                      value={metadata.targetMajor}
+                      onChange={(e) => handleMetadataChange("targetMajor", e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="targetGender" className="text-sm font-medium text-gray-700">
+                      Target Gender
+                    </label>
+                    <Select value={metadata.targetGender.toString()} onValueChange={(value) => handleMetadataChange("targetGender", parseInt(value))}>
+                      <SelectTrigger>
+                        <div className="flex items-center">
+                          <span>{metadata.targetGender === 0 ? "All" : metadata.targetGender === 1 ? "Male" : "Female"}</span>
+                        </div>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">All</SelectItem>
+                        <SelectItem value="1">Male</SelectItem>
+                        <SelectItem value="2">Female</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 flex items-center space-x-2">
+                      <Checkbox
+                        checked={metadata.publishImmediately}
+                        onCheckedChange={(checked) => handleMetadataChange("publishImmediately", checked)}
                   />
+                      <span>Publish Immediately</span>
+                    </label>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -447,7 +509,7 @@ export default function SurveyCreator() {
           <Button
             className="bg-emerald-500 hover:bg-emerald-600 text-white min-w-[120px]"
             onClick={handleSave}
-            disabled={!metadata.title || !metadata.description || !metadata.professorName}
+            disabled={!metadata.title || !metadata.description}
           >
             <Save className="h-4 w-4 mr-2" />
             Save Survey
