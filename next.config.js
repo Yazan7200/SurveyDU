@@ -10,9 +10,16 @@ const nextConfig = {
         ],
         unoptimized: true,
     },
-    output: 'export',
-    basePath: '/SurveyDU',
-    assetPrefix: '/SurveyDU/',
+    output: 'standalone',
+    basePath: process.env.NODE_ENV === 'production' ? '/SurveyDU' : '',
+    assetPrefix: process.env.NODE_ENV === 'production' ? '/SurveyDU/' : '',
+    webpack: (config) => {
+        config.module.rules.push({
+            test: /\.css$/,
+            use: ['style-loader', 'css-loader', 'postcss-loader'],
+        });
+        return config;
+    },
 }
 
 module.exports = nextConfig 
