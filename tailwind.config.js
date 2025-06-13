@@ -22,7 +22,7 @@ module.exports = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#19P394", // Using the primary color from specs
+          DEFAULT: "#19C394", // ← تم إصلاح الكود
           foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
@@ -38,7 +38,7 @@ module.exports = {
           foreground: "hsl(var(--muted-foreground))",
         },
         accent: {
-          DEFAULT: "#FF9814", // Using the accent color from specs
+          DEFAULT: "#FF9814",
           foreground: "hsl(var(--accent-foreground))",
         },
         popover: {
