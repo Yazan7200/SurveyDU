@@ -11,7 +11,6 @@ const nextConfig = {
         unoptimized: true,
     },
     output: 'standalone',
-    assetPrefix: process.env.NODE_ENV === 'production' ? '/SurveyDU' : '',
 }
 
 module.exports = nextConfig 

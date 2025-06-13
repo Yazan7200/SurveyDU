@@ -110,7 +110,7 @@ export default function TeacherDashboard() {
               </Link>
             </Button>
             <Button className="bg-emerald-500 hover:bg-emerald-600 gap-2" asChild>
-              <Link href="/">
+              <Link href="/dashboard/teacher/create-survey">
                 <PlusCircle className="h-4 w-4" />
                 Create Survey
               </Link>

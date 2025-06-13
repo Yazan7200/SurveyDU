@@ -59,7 +59,7 @@ export default function StudentSignup() {
     <div className="min-h-screen bg-gray-50 p-4">
       {/* Header */}
       <header className="w-full max-w-md mx-auto py-4 flex justify-center items-center border-b border-gray-300 mb-8">
-        <Link href="/auth/Landing" className="flex items-center">
+        <Link href="/" className="flex items-center">
           <div className="bg-emerald-500 text-white p-2 rounded-md mr-2">
             <span className="font-bold">SurveyDU</span>
           </div>
