@@ -10,7 +10,9 @@ const nextConfig = {
         ],
         unoptimized: true,
     },
-    output: 'standalone',
+    output: 'export',
+    basePath: '/SurveyDU',
+    assetPrefix: '/SurveyDU/',
 }
 
 module.exports = nextConfig 
