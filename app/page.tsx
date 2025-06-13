@@ -104,11 +104,12 @@ return (
             </div>
             <div className="md:w-1/2 md:pl-10">
             <Image
-                src="/images/what-is-a-questionnaire-blog-image-1024x618.jpg"
+                src="/Images/what-is-a-questionnaire-blog-image-1024x618.jpg"
                 alt="Questionnaire"
                 width={600}
                 height={550}
                 className="rounded-lg shadow-lg"
+                priority
             />
             </div>
         </div>
