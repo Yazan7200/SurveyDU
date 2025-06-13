@@ -2,9 +2,16 @@
 const nextConfig = {
     reactStrictMode: true,
     images: {
-        domains: ['localhost'],
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: '**',
+            },
+        ],
         unoptimized: true,
     },
+    output: 'standalone',
+    assetPrefix: process.env.NODE_ENV === 'production' ? '/SurveyDU' : '',
 }
 
 module.exports = nextConfig 
