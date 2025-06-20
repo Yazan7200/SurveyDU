@@ -20,6 +20,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { useToast } from "@/components/ui/use-toast"
+import { motion, AnimatePresence } from "framer-motion"
 
 // Mock survey data
 const surveyData = {
@@ -112,6 +113,7 @@ export default function SurveyParticipation() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [answers, setAnswers] = useState<Record<number, any>>({})
   const [showSubmitDialog, setShowSubmitDialog] = useState(false)
+  const [comment, setComment] = useState("")
 
   const currentQuestion = surveyData.questions[currentQuestionIndex]
   const progress = Math.round(((currentQuestionIndex + 1) / surveyData.questions.length) * 100)
@@ -180,7 +182,7 @@ export default function SurveyParticipation() {
             onValueChange={handleRadioChange}
             className="space-y-3 mt-4"
           >
-            {currentQuestion.options.map((option) => (
+            {currentQuestion.options?.map((option) => (
               <div key={option.id} className="flex items-center space-x-2">
                 <RadioGroupItem value={option.id.toString()} id={`option-${option.id}`} />
                 <Label htmlFor={`option-${option.id}`} className="cursor-pointer">
@@ -194,14 +196,19 @@ export default function SurveyParticipation() {
       case "checkbox":
         return (
           <div className="space-y-3 mt-4">
-            {currentQuestion.options.map((option) => (
+            {currentQuestion.options?.map((option) => (
               <div key={option.id} className="flex items-center space-x-2">
                 <Checkbox
                   id={`option-${option.id}`}
                   checked={(answers[currentQuestion.id] || []).includes(option.id)}
                   onCheckedChange={() => handleCheckboxChange(option.id)}
+                  className="data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500"
                 />
-                <Label htmlFor={`option-${option.id}`} className="cursor-pointer">
+                <Label 
+                  htmlFor={`option-${option.id}`} 
+                  className="cursor-pointer select-none"
+                  onClick={() => handleCheckboxChange(option.id)}
+                >
                   {option.text}
                 </Label>
               </div>
@@ -255,7 +262,15 @@ export default function SurveyParticipation() {
           <Progress value={progress} className="h-2" />
         </div>
 
-        {/* Question Card */}
+        {/* Question Card with Animation */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentQuestionIndex}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+          >
         <Card className="mb-6">
           <CardHeader>
             <div className="flex items-start justify-between">
@@ -264,7 +279,9 @@ export default function SurveyParticipation() {
                   {currentQuestion.text}
                   {currentQuestion.required && <span className="text-red-500 ml-1">*</span>}
                 </CardTitle>
-                {currentQuestion.type === "checkbox" && <CardDescription>Select all that apply</CardDescription>}
+                    {currentQuestion.type === "checkbox" && (
+                      <CardDescription>Select all that apply</CardDescription>
+                    )}
               </div>
               <Dialog>
                 <DialogTrigger asChild>
@@ -288,22 +305,57 @@ export default function SurveyParticipation() {
           </CardHeader>
           <CardContent>{renderQuestionContent()}</CardContent>
           <CardFooter className="flex justify-between">
-            <Button variant="outline" onClick={handlePreviousQuestion} disabled={currentQuestionIndex === 0}>
+                <Button 
+                  variant="outline" 
+                  onClick={handlePreviousQuestion} 
+                  disabled={currentQuestionIndex === 0}
+                  className="w-[100px]"
+                >
               <ChevronLeft className="mr-2 h-4 w-4" /> Previous
             </Button>
-            <Button onClick={handleNextQuestion}>
+                <div className="flex-1 flex justify-center">
+                  <div className="flex gap-1">
+                    {surveyData.questions.map((_, index) => (
+                      <div
+                        key={index}
+                        className={`h-1.5 w-1.5 rounded-full ${
+                          index === currentQuestionIndex
+                            ? "bg-emerald-500"
+                            : index < currentQuestionIndex
+                            ? "bg-emerald-200"
+                            : "bg-gray-200"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <Button 
+                  variant="outline"
+                  onClick={handleNextQuestion}
+                  className="w-[100px]"
+                >
               {currentQuestionIndex < surveyData.questions.length - 1 ? (
                 <>
                   Next <ChevronRight className="ml-2 h-4 w-4" />
                 </>
               ) : (
-                "Submit"
+                    <>
+                      Submit <ChevronRight className="ml-2 h-4 w-4" />
+                    </>
               )}
             </Button>
           </CardFooter>
         </Card>
+          </motion.div>
+        </AnimatePresence>
 
-        {/* Comment Section */}
+        {/* Comment Section - Only show on last question */}
+        {currentQuestionIndex === surveyData.questions.length - 1 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center">
@@ -311,13 +363,21 @@ export default function SurveyParticipation() {
               Leave a Comment (Optional)
             </CardTitle>
             <CardDescription>
-              Share your thoughts about this survey with the instructor. Your comment will be visible after submission.
+                  Share your thoughts about this survey. Your comment will be visible after submission.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Textarea placeholder="Type your comment here..." className="h-24" />
+                <Textarea 
+                  placeholder="Type your comment here..." 
+                  className="h-24"
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                />
           </CardContent>
         </Card>
+          </motion.div>
+        )}
+      </div>
 
         {/* Submit Dialog */}
         <Dialog open={showSubmitDialog} onOpenChange={setShowSubmitDialog}>
@@ -325,21 +385,9 @@ export default function SurveyParticipation() {
             <DialogHeader>
               <DialogTitle>Submit Survey</DialogTitle>
               <DialogDescription>
-                You are about to submit your responses. Once submitted, you cannot change your answers.
+              Are you sure you want to submit your responses? You won't be able to change them after submission.
               </DialogDescription>
             </DialogHeader>
-            <div className="py-4">
-              <div className="flex items-center justify-center bg-emerald-50 text-emerald-600 p-4 rounded-lg mb-4">
-                <Award className="h-6 w-6 mr-2" />
-                <span className="font-medium">
-                  You will earn {surveyData.points} points for completing this survey.
-                </span>
-              </div>
-
-              <p className="text-sm text-gray-500">
-                Please review your answers before submitting. You can go back to make changes if needed.
-              </p>
-            </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setShowSubmitDialog(false)}>
                 Review Answers
@@ -350,7 +398,6 @@ export default function SurveyParticipation() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      </div>
     </div>
   )
 }
